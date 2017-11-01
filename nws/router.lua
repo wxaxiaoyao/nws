@@ -40,7 +40,7 @@ router.regexp_handler = {}
 router.normal_handler = {}
 router.controller_handler = {}
 router.tree_handler = route:new()
-router.controller_paths = {"controller."}
+router.controller_paths = {"controller/"}
 router.auto_match_url_prefix = ""
 
 local method_list = {
@@ -108,9 +108,8 @@ function router:get_controller(ctrl_name)
 			return ctrl
 		end
 
-		--ctrl = require(path .. "controller." .. ctrl_name)
 		xpcall(function()
-			ctrl = require(path .. ctrl_name)
+			ctrl = nws.import(path .. ctrl_name)
 		end, function(e)
 			log(e)
 		end)

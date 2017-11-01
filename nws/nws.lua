@@ -16,16 +16,11 @@ local nws = gettable("nws")
 
 nws.gettable = gettable
 
-function nws.import(modname, is_nws_module)
+function nws.import(modname)
 	if server_type == server_type_lua then
-		if is_nws_module then
-			modname = "npl_mod." .. modname
-		end
-
 		return require(modname)
 	else
-		--return require(modname)
-		return NPL.load(modname)
+		return NPL.load(modname .. ".lua")
 	end
 end
 

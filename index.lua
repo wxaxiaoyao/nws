@@ -1,6 +1,7 @@
 
+
 -- 加载框架
-local nws = require("npl_mod.nws.loader")
+local nws = require("nws/loader")
 -- 加载配置文件
 local config = require("config")
 -- 初始化矿建
@@ -12,6 +13,7 @@ nws.router("/", function(ctx)
 	ctx.response:send("<div>hello npl webserver</div>")
 end)
 
+--nws.router("/api/v0/demo", )
 
 nws.log("启动服务器...")
 -- 启动服务器

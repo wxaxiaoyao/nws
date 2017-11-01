@@ -1,8 +1,5 @@
 
 local _db = nil
---local mysql = require("orm/mysql")
---local tabledb = require("orm/tabledb")
-
 local nws = commonlib.gettable("nws")
 local orm = commonlib.gettable("nws.orm")
 
@@ -43,7 +40,7 @@ end
 local function get_db(db_type)
 	--_ = db_type or error(db_type)
 	db_type = db_type or "mysql"
-	_db = _db or nws.import("nws.orm." .. db_type)
+	_db = _db or nws.import("nws/orm/" .. db_type)
 	return _db
 end
 

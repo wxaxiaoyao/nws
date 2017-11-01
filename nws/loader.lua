@@ -25,7 +25,7 @@ local default_config = {
 	}
 }
 
-local nws = require("npl_mod.nws.nws")
+local nws = require("nws/nws")
 
 -- 初始化server
 nws.init = function(config)
@@ -40,20 +40,21 @@ nws.init = function(config)
 		NPL.load("(gl)script/ide/commonlib.lua")
 		NPL.this(function() end)
 	else
-		commonlib = require("nws.commonlib")
+		commonlib = require("nws/commonlib")
 	end
 
 	self.is_start = false
 	self.config = config
-	self.orm = self.import("nws.orm")
-	self.router = self.import("nws.router")
-	self.controller = self.import("nws.controller")
-	self.mimetype = self.import("nws.mimetype")
-	self.request = self.import("nws." .. server_type .. "_request")
-	self.response = self.import("nws." .. server_type .. "_response")
-	self.http = self.import("nws." .. server_type .. "_http")
-	self.util = self.import("nws." .. server_type .. "_util")
-	self.log = self.import("nws." .. server_type .. "_log")
+	--self.orm = self.import("nws/orm")
+	self.orm = require("nws/orm") -- NPL.load 同时存在同名文件与目录报错
+	self.router = self.import("nws/router")
+	self.controller = self.import("nws/controller")
+	self.mimetype = self.import("nws/mimetype")
+	self.request = self.import("nws/" .. server_type .. "_request")
+	self.response = self.import("nws/" .. server_type .. "_response")
+	self.http = self.import("nws/" .. server_type .. "_http")
+	self.util = self.import("nws/" .. server_type .. "_util")
+	self.log = self.import("nws/" .. server_type .. "_log")
 
 	self.orm:init(config.database)
 end

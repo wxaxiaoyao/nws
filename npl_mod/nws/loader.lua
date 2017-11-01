@@ -25,7 +25,7 @@ local default_config = {
 	}
 }
 
-local nws = require("nws.nws")
+local nws = require("npl_mod.nws.nws")
 
 -- 初始化server
 nws.init = function(config)

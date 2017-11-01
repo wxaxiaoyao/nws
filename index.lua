@@ -1,5 +1,5 @@
 -- 将mod放lua搜索路径中
-package.path = package.path .. ";/root/workspace/lua/keepwork/npl_mod/?.lua;"
+package.path = package.path .. ";/root/workspace/npl/nplproject/nws/npl_mod/?.lua;"
 
 -- 加载框架
 local nws = require("nws.loader")

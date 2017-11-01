@@ -1,4 +1,5 @@
---require("helper")
+local nws = commonlib.gettable("nws")
+
 function string_split(str, sep)
 end
 
@@ -266,9 +267,10 @@ function router:handle(ctx)
 	if url_params[1] == nil or tonumber(url_params[1]) then
 		funcname = method
 	else
-		funcname = url_params
+		funcname = url_params[1]
 		table.remove(url_params,1)
 	end
+
 	if type(controller) == "table" and controller[funcname] then
 		ctx.request.url_params = url_params
 		return (controller[funcname])(controller, ctx)

@@ -2,9 +2,8 @@
 
 
 main() {
-	read project_name
-
 	echo "请输入项目名..."
+	read project_name
 	if [ -z "$project_name" ]; then
 		echo "项目名不能为空"
 		return

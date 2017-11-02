@@ -1,8 +1,5 @@
 
 commonlib = commonlib or nil
-local server_type = "npl"
-local server_type_lua = "lua"
-local server_type_npl = "npl"
 
 local default_config = {
 	server_type = "npl",
@@ -31,10 +28,10 @@ local nws = require("nws/nws")
 nws.init = function(config)
 	self = nws
 
-	config = config or default_config 
+	local config = config or default_config 
 
 	-- 服务器类型 npl lua
-	server_type = config.server_type or "npl"
+	local server_type = config.server_type or "npl"
 
 	if server_type == "npl" then
 		NPL.load("(gl)script/ide/commonlib.lua")
@@ -44,9 +41,10 @@ nws.init = function(config)
 	end
 
 	self.is_start = false
+	self.server_type = server_type or self.server_type
+
 	self.config = config
-	--self.orm = self.import("nws/orm")
-	self.orm = require("nws/orm") -- NPL.load 同时存在同名文件与目录报错
+	self.orm = self.import("nws/orm")
 	self.router = self.import("nws/router")
 	self.controller = self.import("nws/controller")
 	self.mimetype = self.import("nws/mimetype")

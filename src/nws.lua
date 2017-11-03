@@ -35,16 +35,6 @@ local nws = gettable("nws")
 
 nws.gettable = gettable
 nws.settable = settable
-nws.server_type = "npl"
-
-function nws.import(modname)
-	if nws.server_type == "npl" then
-		return NPL.load(modname .. ".lua")
-	else
-		return require(modname)
-	end
-end
-
 
 function nws.inherit(base, derived)
 	derived = derived or {}
@@ -112,5 +102,42 @@ function nws.inherit(base, derived)
 	return derived
 end
 
+-- 路由简写
+nws.get = function(path, controller)
+	nws.router(path, controller, "get")
+end
+
+nws.put = function(path, controller)
+	nws.router(path, controller, "put")
+end
+
+nws.post = function(path, controller)
+	nws.router(path, controller, "post")
+end
+
+nws.delete = function(path, controller)
+	nws.router(path, controller, "delete")
+end
+
+nws.head = function(path, controller)
+	nws.router(path, controller, "head")
+end
+
+nws.patch = function(path, controller)
+	nws.router(path, controller, "patch")
+end
+
+nws.options = function(path, controller)
+	nws.router(path, controller, "options")
+end
+
+nws.any = function(path, controller)
+	nws.router(path, controller, "any")
+end
+
+--  过滤器注册
+nws.register_filter = function(filter)
+	nws.http:register_filter(filters)
+end
 
 return nws

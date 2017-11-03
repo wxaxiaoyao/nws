@@ -1,5 +1,3 @@
-local nws = commonlib.gettable("nws")
-
 function string_split(str, sep)
 end
 
@@ -30,11 +28,8 @@ function route:get_by_paths(root, paths)
 	return root
 end
 
-local nws = commonlib.gettable("nws")
-local router = commonlib.gettable("nws.router")
-local controller = commonlib.gettable("nws.controller")
-
-
+local router = nws.gettable("nws.router")
+local controller = nws.gettable("nws.controller")
 
 router.regexp_handler = {}
 router.normal_handler = {}
@@ -231,7 +226,6 @@ function router:handle(ctx)
 	end
 
 	route_handle = tree_handler
-	--commonlib.console(route_handle)
 	for _, x in ipairs(paths) do
 		url_params[#url_params+1] = x
 		if route_handle then

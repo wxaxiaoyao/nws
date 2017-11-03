@@ -1,7 +1,6 @@
 
 local _db = nil
-local nws = commonlib.gettable("nws")
-local orm = commonlib.gettable("nws.orm")
+local orm = nws.gettable("nws.orm")
 
 orm.LIMIT = "$limit"
 orm.OFFSET = "$offset"
@@ -40,7 +39,7 @@ end
 local function get_db(db_type)
 	--_ = db_type or error(db_type)
 	db_type = db_type or "mysql"
-	_db = _db or nws.import("nws/orm/" .. db_type)
+	_db = _db or nws.import("nws/src/orm/" .. db_type)
 	return _db
 end
 

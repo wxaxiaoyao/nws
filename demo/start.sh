@@ -2,11 +2,11 @@
 
 
 start_server(){
-	npl -d index.lua
+	npl -d nws/src/loader.lua
 }
 
 stop_server(){
-	pid=`ps uax | grep "npl -d index" | grep -v grep | awk '{print $2}'`
+	pid=`ps uax | grep -e "npl.*nws/src/loader" | grep -v grep | awk '{print $2}'`
 	if [ ! -z $pid ]; then
 		kill -9 $((pid))
 	fi

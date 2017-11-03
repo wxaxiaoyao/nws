@@ -11,10 +11,13 @@ main() {
 	
 	echo "创建web项目:$project_name"
 	
-	# 拉取nws框架代码
-	git clone git@github.com:wxaxiaoyao/nws.git $project_name
+	mkdir -p $project_name
 	cd $project_name
-	cp -fr nws/demo/* .
+	temp_dir=".temp"
+	git clone git@github.com:wxaxiaoyao/nws.git $temp_dir
+	# 拉取nws框架代码
+	cp -fr $temp_dir/* .
+	rm -fr $temp_dir
 }
 
 main $@

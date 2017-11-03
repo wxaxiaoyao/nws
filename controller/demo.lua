@@ -10,5 +10,4 @@ function demo:get(ctx)
 	ctx.response:send("hello world")
 end
 
---return demo
-return {key="demo"}
+return demo

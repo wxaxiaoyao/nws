@@ -57,6 +57,44 @@ nws.init = function(config)
 	self.orm:init(config.database)
 end
 
+-- 路由简写
+nws.get = function(path, controller)
+	nws.router(path, controller, "get")
+end
+
+nws.put = function(path, controller)
+	nws.router(path, controller, "put")
+end
+
+nws.post = function(path, controller)
+	nws.router(path, controller, "post")
+end
+
+nws.delete = function(path, controller)
+	nws.router(path, controller, "delete")
+end
+
+nws.head = function(path, controller)
+	nws.router(path, controller, "head")
+end
+
+nws.patch = function(path, controller)
+	nws.router(path, controller, "patch")
+end
+
+nws.options = function(path, controller)
+	nws.router(path, controller, "options")
+end
+
+nws.any = function(path, controller)
+	nws.router(path, controller, "any")
+end
+
+--  过滤器注册
+nws.register_filter = function(filter)
+	nws.http:register_filter(filters)
+end
+
 ---- 添加路由
 --nws.router = function(path, controller, desc)
 	

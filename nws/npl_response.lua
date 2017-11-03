@@ -1,7 +1,8 @@
 NPL.load('script/ide/commonlib.lua')
 NPL.load('script/ide/Json.lua')
+
+local template = require("nws.resty.template")
 local mimetype = commonlib.gettable("nws.mimetype")
-local template = require("resty.template")
 
 local status_strings = {
     ['200'] ="HTTP/1.1 200 OK\r\n",
@@ -128,7 +129,7 @@ end
 
 -- 返回视图
 function response:render(view, context)
-	local data = template.compile(view)(context)
+	local data = template.compile("statics/" .. view)(context)
 	--self:set_content("<div>hello world</div>")
 	self:set_content(data)
 
@@ -164,7 +165,8 @@ function response:send_file(path, ext)
 	local file = io.open("./" .. path, "rb")
 
 	if not file then 
-		self:send("文件路径错误", 404)
+		self:send("文件路径错误:" .. path, 404)
+		return 
 	end
 
 	local content = file:read("*a")

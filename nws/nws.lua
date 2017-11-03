@@ -1,6 +1,6 @@
 
-local function gettable(f, rootEnv)
-    local t = rootEnv or _G    -- start with the table of globals
+local function gettable(f, r)
+    local t = r or _G    -- start with the table of globals
     if not f then 
 		return t
 	end 
@@ -12,9 +12,29 @@ local function gettable(f, rootEnv)
     return t;
 end
 
+local function settable(f, v, r)
+    local t = r or _G    -- start with the table of globals
+	local lt = t
+	local lw = nil
+
+	if not f then
+		return 
+	end
+
+    for w, d in string.gmatch(f, "([%w_]+)(.?)") do
+        t[w] = t[w] or {}   -- create table if absent
+		lw = w
+		lt = t
+        t = t[w]            -- get the table
+    end 
+
+	lt[lw] = v
+end
+
 local nws = gettable("nws")
 
 nws.gettable = gettable
+nws.settable = settable
 nws.server_type = "npl"
 
 function nws.import(modname)

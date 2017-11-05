@@ -3,9 +3,9 @@ local cjson = require("cjson")
 local cjson_safe = require("cjson.safe")
 local jwt = require("luajwt")
 local md5 = require("md5")
-local requests = require("requests")
+--local requests = require("requests")
 
-local util = {}
+local util = nws.gettable("nws.util")
 
 -- 控制台输出
 function util.console(msg)

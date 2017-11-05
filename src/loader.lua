@@ -3,6 +3,12 @@ nws = nws or nil
 local is_start = false
 local server_type = "npl"
 
+-- 通过全局arg参数识别类型
+if arg then
+	server_type = "lua"
+else
+	server_type = "npl"
+end
 function import(modname)
 	if server_type == "npl" then
 		return NPL.load(modname .. ".lua")

@@ -119,6 +119,12 @@ function log:fatal(msg)
 	self:log(log.FATAL, msg)
 end
 
+log = setmetatable(log, {
+	__call = function(self, ...)
+		commonlib.console(...)
+	end,
+})
+
 return log
 
 

@@ -1,6 +1,6 @@
 
 local config = {
-	server_type = "npl",
+	--server_type = "npl",
 	server_ip = nil,
 	server_port = 8888,
 	database = {

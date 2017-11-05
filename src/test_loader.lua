@@ -3,6 +3,15 @@ nws = nws or nil
 local is_start = false
 local server_type = "npl"
 
+-- 通过全局arg参数识别类型
+if arg then
+	server_type = "lua"
+	print("lua program")
+else
+	server_type = "npl"
+	print("npl program")
+end
+
 function import(modname)
 	if server_type == "npl" then
 		return NPL.load(modname .. ".lua")
@@ -37,6 +46,8 @@ function init(config)
 	nws.log = import("nws/src/" .. server_type .. "_log")
 	nws.cache = import("nws/src/" .. server_type .. "_cache")
 
+	nws.test = import("nws/src/test")
+
 	nws.orm:init(config.database)
 end
 
@@ -45,8 +56,10 @@ end
 function start()
 	if is_start then
 		print("服务器已启动...")
+		nws.is_start = false
 		return 
 	end
+
 
 	-- 加载配置
 	local config = nil
@@ -61,12 +74,14 @@ function start()
 	-- 初始化服务器
 	init(config)
 
+	nws.is_frist = true
+
 	-- 加载入口文件
-	nws.log("开始单元测试")
+	--nws.log("开始单元测试")
 	pcall(function()
-		nws.import("test")
+		--nws.import("test")
 	end)
-	nws.log("结束单元测试")
+	--nws.log("结束单元测试")
 end
 
 start()

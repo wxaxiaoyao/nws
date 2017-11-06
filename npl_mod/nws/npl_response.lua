@@ -1,7 +1,7 @@
 NPL.load('script/ide/commonlib.lua')
 NPL.load('script/ide/Json.lua')
 
-local template = require("nws.src.resty.template")
+local template = require((string.gsub(nws.get_nws_path_prefix(), "/", ".")) .. "resty.template")
 local mimetype = commonlib.gettable("nws.mimetype")
 
 local status_strings = {

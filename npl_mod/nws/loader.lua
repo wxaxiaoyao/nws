@@ -9,7 +9,12 @@ if arg then
 else
 	server_type = "npl"
 end
-function import(modname)
+
+local function get_nws_path_prefix()
+	return "nws/npl_mod/nws/"
+end
+
+local function import(modname)
 	if server_type == "npl" then
 		return NPL.load(modname .. ".lua")
 	else
@@ -21,27 +26,30 @@ end
 function init(config)
 	-- 服务器类型 npl lua
 	server_type = config.server_type or server_type
-	nws = import("nws/src/nws")
+	local nws_path_prefix = get_nws_path_prefix()
+
+	nws = import(nws_path_prefix .. "nws")
 
 	if server_type == "npl" then
 		NPL.load("(gl)script/ide/commonlib.lua")
 		NPL.this(function() end)
 	else
-		commonlib = import("nws/src/commonlib")
+		commonlib = import(nws_path_prefix .. "commonlib")
 	end
 
+	nws.get_nws_path_prefix = get_nws_path_prefix
 	nws.import = import
 	nws.config = config
-	nws.orm = import("nws/src/orm")
-	nws.router = import("nws/src/router")
-	nws.controller = import("nws/src/controller")
-	nws.mimetype = import("nws/src/mimetype")
-	nws.request = import("nws/src/" .. server_type .. "_request")
-	nws.response = import("nws/src/" .. server_type .. "_response")
-	nws.http = import("nws/src/" .. server_type .. "_http")
-	nws.util = import("nws/src/" .. server_type .. "_util")
-	nws.log = import("nws/src/" .. server_type .. "_log")
-	nws.cache = import("nws/src/" .. server_type .. "_cache")
+	nws.orm = import(nws.nws_path_prefix .. "orm")
+	nws.router = import(nws.nws_path_prefix .. "router")
+	nws.controller = import(nws.nws_path_prefix .. "controller")
+	nws.mimetype = import(nws.nws_path_prefix .. "mimetype")
+	nws.request = import(nws.nws_path_prefix .. server_type .. "_request")
+	nws.response = import(nws.nws_path_prefix .. server_type .. "_response")
+	nws.http = import(nws.nws_path_prefix .. server_type .. "_http")
+	nws.util = import(nws.nws_path_prefix .. server_type .. "_util")
+	nws.log = import(nws.nws_path_prefix .. server_type .. "_log")
+	nws.cache = import(nws.nws_path_prefix .. server_type .. "_cache")
 
 	nws.orm:init(config.database)
 end

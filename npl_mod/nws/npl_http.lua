@@ -1,4 +1,3 @@
-
 local util = commonlib.gettable("nws.util")
 local request = commonlib.gettable("nws.request")
 local response = commonlib.gettable("nws.response")
@@ -36,7 +35,7 @@ function http:statics(req, resp)
 	return true
 end
 
-function http:handle(config)
+function http:start(config)
 	if self.is_start then
 		return 
 	end
@@ -52,33 +51,7 @@ function http:handle(config)
 	NPL.StartNetServer("0.0.0.0", tostring(port))
 end
 
--- 注册过滤器
-function http:register_filter(filter_func)
-	table.insert(self.filter, filter_func)
-end
-
--- 执行过滤器
-local function do_filter(ctx, filters, i)
-	if not filters or i > #filters then
-		do_handle(ctx)
-		return 
-	end
-
-	(filters[i])(ctx, function()
-		do_filter(ctx, filters, i+1)
-	end)
-end
-
--- 执行请求处理
-function do_handle(ctx)
-	local data, manual_send = router:handle(ctx)
-	-- 确保成功发送
-	if not manual_send then
-		ctx.response:send(data)
-	end
-end
-
-function activate()
+function http:handle(msg)
 	if not msg then
 		return 
 	end
@@ -93,11 +66,40 @@ function activate()
 	log(req.method .. " " .. req.url .. "\n")
 	--log(req.path .. "\n")
 	
-	if http:statics(req, resp) then
+	if self:statics(req, resp) then
 		return
 	end
 
-	do_filter(ctx, http.filter, 1)
+	self:do_filter(ctx, http.filter, 1)
+end
+-- 注册过滤器
+function http:register_filter(filter_func)
+	table.insert(self.filter, filter_func)
+end
+
+-- 执行过滤器
+function http:do_filter(ctx, filters, i)
+	if not filters or i > #filters then
+		self:do_handle(ctx)
+		return 
+	end
+
+	(filters[i])(ctx, function()
+		do_filter(ctx, filters, i+1)
+	end)
+end
+
+-- 执行请求处理
+function http:do_handle(ctx)
+	local data, manual_send = router:handle(ctx)
+	-- 确保成功发送
+	if not manual_send then
+		ctx.response:send(data)
+	end
+end
+
+function activate()
+	http:handle(msg)
 end
 
 --http:register_filter(function(ctx, do_next)

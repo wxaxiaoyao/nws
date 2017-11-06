@@ -1,4 +1,4 @@
-nws = nws or nil
+nws = nws or {}
 
 local is_start = false
 local server_type = "npl"
@@ -34,7 +34,6 @@ function init(config)
 	server_type = config.server_type or server_type
 	local nws_path_prefix = get_nws_path_prefix()
 
-	nws = import(nws_path_prefix .. "nws")
 
 	if server_type == "npl" then
 		NPL.load("(gl)script/ide/commonlib.lua")
@@ -42,6 +41,8 @@ function init(config)
 	else
 		commonlib = import(nws_path_prefix .. "commonlib")
 	end
+
+	nws = import(nws_path_prefix .. "nws")
 
 	nws.get_nws_path_prefix = get_nws_path_prefix
 	nws.import = import
@@ -69,26 +70,35 @@ function start()
 	end
 
 	-- 加载配置
-	local config = nil
-	local ok, errinfo = pcall(function()
-		config = import("config")
-		config = config or import(nws.get_nws_path_prefix() .. "config")
-	end)
-	if not ok then
-		print("使用默认配置文件...")
+	local config = nws.config
+	if not config then
+		local ok, errinfo = pcall(function()
+			config = import("config")
+			if not config then
+				print("使用默认配置文件...")
+			end
+			config = config or import(nws.get_nws_path_prefix() .. "config")
+		end)
 	end
 
 	-- 初始化服务器
 	init(config)
 
-	-- 加载入口文件
-	pcall(function()
-		nws.import("index")
-	end)
+	-- 使用内置server
+	if config.use_inner_server then
+		-- 加载入口文件
+		pcall(function()
+			nws.import("index")
+		end)
 
-	-- 启动服务器
-	nws.log("启动服务器...")
-	nws.http:handle(config)
+		nws.log("启动服务器...")
+		nws.http:start(config)
+	end
+
+	nws.handle = function(msg)
+		nws.http:handle(msg)
+	end
+
 	is_start = true
 end
 

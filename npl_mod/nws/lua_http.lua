@@ -23,7 +23,7 @@ function http:init(config)
 	--self.log = log:new(config.log)
 end
 
-function http:handle()
+function http:start()
 	--router:handle(req, resp)
 end
 

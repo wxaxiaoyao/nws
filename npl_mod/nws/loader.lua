@@ -6,12 +6,18 @@ local server_type = "npl"
 -- 通过全局arg参数识别类型
 if arg then
 	server_type = "lua"
+	print("LUA PROGRAME")
 else
 	server_type = "npl"
+	print("NPL PROGRAME")
 end
 
 local function get_nws_path_prefix()
-	return "nws/npl_mod/nws/"
+	if server_type == "npl" then
+		return "nws/"
+	else
+		return "npl_package/nws/npl_mod/nws/"
+	end
 end
 
 local function import(modname)
@@ -40,16 +46,16 @@ function init(config)
 	nws.get_nws_path_prefix = get_nws_path_prefix
 	nws.import = import
 	nws.config = config
-	nws.orm = import(nws.nws_path_prefix .. "orm")
-	nws.router = import(nws.nws_path_prefix .. "router")
-	nws.controller = import(nws.nws_path_prefix .. "controller")
-	nws.mimetype = import(nws.nws_path_prefix .. "mimetype")
-	nws.request = import(nws.nws_path_prefix .. server_type .. "_request")
-	nws.response = import(nws.nws_path_prefix .. server_type .. "_response")
-	nws.http = import(nws.nws_path_prefix .. server_type .. "_http")
-	nws.util = import(nws.nws_path_prefix .. server_type .. "_util")
-	nws.log = import(nws.nws_path_prefix .. server_type .. "_log")
-	nws.cache = import(nws.nws_path_prefix .. server_type .. "_cache")
+	nws.orm = import(nws_path_prefix .. "orm")
+	nws.router = import(nws_path_prefix .. "router")
+	nws.controller = import(nws_path_prefix .. "controller")
+	nws.mimetype = import(nws_path_prefix .. "mimetype")
+	nws.request = import(nws_path_prefix .. server_type .. "_request")
+	nws.response = import(nws_path_prefix .. server_type .. "_response")
+	nws.http = import(nws_path_prefix .. server_type .. "_http")
+	nws.util = import(nws_path_prefix .. server_type .. "_util")
+	nws.log = import(nws_path_prefix .. server_type .. "_log")
+	nws.cache = import(nws_path_prefix .. server_type .. "_cache")
 
 	nws.orm:init(config.database)
 end
@@ -65,8 +71,8 @@ function start()
 	-- 加载配置
 	local config = nil
 	local ok, errinfo = pcall(function()
-		config = require("config")
-		config = config or require("nws.config")
+		config = import("config")
+		config = config or import(nws.get_nws_path_prefix() .. "config")
 	end)
 	if not ok then
 		print("使用默认配置文件...")

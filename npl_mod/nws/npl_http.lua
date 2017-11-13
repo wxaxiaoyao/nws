@@ -1,3 +1,4 @@
+local handler = nws.import(nws.get_nws_path_prefix() .. "npl_handler")
 local util = commonlib.gettable("nws.util")
 local request = commonlib.gettable("nws.request")
 local response = commonlib.gettable("nws.response")
@@ -40,13 +41,12 @@ function http:start(config)
 		return 
 	end
 
-	local debug_info = debug.getinfo(1, 'S')
-	local filename = debug_info.source:match("@?(.*)")
-	--log(filename)
-	--log(filename:match("@?(.*)"))
-	--log(debug.getinfo(1,'S').source:match('^[@%./\\]*(.+[/\\])[^/\\]+$'))
-	
+	-- 创建子线程
+	handler:init_child_threads()
+
+	local filename = nws.get_nws_path_prefix() .. "npl_handler.lua"
 	local port = config.port or 8888
+
 	NPL.AddPublicFile(filename, -10)
 	NPL.StartNetServer("0.0.0.0", tostring(port))
 end
@@ -98,21 +98,16 @@ function http:do_handle(ctx)
 	end
 end
 
-function activate()
-	http:handle(msg)
+-- 是否是静态资源
+function http:is_statics(url)
+	local path = url:match("([^?]+)")
+	local ext = path:match('^.+%.([a-zA-Z0-9]+)$')
+	
+	if not ext then
+		return false
+	end
+
+	return true
 end
-
---http:register_filter(function(ctx, do_next)
-	--log("this is filter 1")
-	--do_next()
---end)
-
---http:register_filter(function(ctx, do_next)
-	--log("this is filter 2")
-	--do_next()
---end)
-
---NPL.export(http)
-NPL.this(activate)
 
 return http

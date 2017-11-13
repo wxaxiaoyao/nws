@@ -63,8 +63,16 @@ function orm:tablename(t)
 	self._db:tablename(t)
 end
 
-function orm:addfield(fieldname, fieldtype)
-	self._db:addfield(fieldname, fieldtype)
+function orm:addfield(...)
+	self._db:addfield(...)
+end
+
+function orm:get_field_list()
+	return self._db:get_field_list()
+end
+
+function orm:get_value_id(t)
+	return self._db:get_value_id(t)
 end
 
 function orm:set_db_type(typ)

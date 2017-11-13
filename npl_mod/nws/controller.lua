@@ -72,12 +72,12 @@ function controller:put(ctx)
 		ctx.response:send("缺少资源id", 400)
 	end
 
-	local err = self.model:update({id=id}, params)
+	local err, data = self.model:update({id=id}, params)
 
 	if err then
 		ctx.response:send(err, 400)
 	else
-		ctx.response:send(nil, 200)
+		ctx.response:send(data, 200)
 	end
 
 	return
@@ -91,12 +91,12 @@ function controller:post(ctx)
 
 	local params = ctx.request:get_params()
 
-	local err = self.model:insert(params)
+	local err, data = self.model:insert(params)
 
 	if err then
 		ctx.response:send(err, 400)
 	else
-		ctx.response:send(nil, 200)
+		ctx.response:send(data, 200)
 	end
 
 	return nil
@@ -118,15 +118,54 @@ function controller:delete(ctx)
 		ctx.response:send("缺少资源id", 400)
 	end
 
-	local err = self.model:delete({id=id})
+	local err, data = self.model:delete({id=id})
 
 	if err then
 		ctx.response:send(err, 400)
 	else
-		ctx.response:send(nil, 200)
+		ctx.response:send(data, 200)
 	end
 
 	return
+end
+
+function controller:view(ctx)
+	if not self.model then
+		ctx.response:send("无效model", 500)
+	end
+	local params = ctx.request:get_params()
+	local fieldlist = self.model:get_field_list()
+	local datalist = self.model:find(params) or {}
+	local valuelist = {}
+	local querylist = {}
+
+	-- 查询字段
+	for _, field in ipairs(fieldlist or {}) do
+		if field.is_query then
+			querylist[#querylist+1] = field
+		end
+	end
+
+	for _, data in ipairs(datalist or {}) do
+		local value = {}
+		for _, field in ipairs(fieldlist or {}) do
+			value[#value+1] = data[field.fieldname] or ""
+		end
+		--value["id"] = self.model:get_value_id(value)
+		valuelist[#valuelist+1] = value
+	end
+	--nws.log(fieldlist)
+
+	
+	local context = {
+		fieldlist = fieldlist,
+		valuelist = valuelist,
+		querylist = querylist,
+	}
+
+	context.self_data = nws.util.to_json(context)
+
+	ctx.response:render("demo.html", context)
 end
 
 return controller

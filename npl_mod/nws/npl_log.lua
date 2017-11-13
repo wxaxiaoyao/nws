@@ -83,8 +83,9 @@ end
 
 log = setmetatable(log, {
 	__call = function(self, ...)
-		msg = log.get_log_msg(...) .. "\n"
+		local msg = log.get_log_msg(...)
 		commonlib.log(msg)
+		commonlib.log("\n")
 	end,
 })
 

@@ -120,6 +120,7 @@ function tabledb:new()
 	
 	obj._fields = {}
 
+	obj.idname = "id"
 	return obj
 end
 
@@ -129,7 +130,15 @@ function tabledb:tablename(name)
 	self.table = l_db[name]
 
 	-- id字段默认存在
-	self:addfield(name .. "_id", "number", "ID", true)
+	self:addfield(self.idname, "number", "ID", true)
+end
+
+function tabledb:get_tablename()
+	return self.table_name
+end
+
+function tabledb:get_idname()
+	return self.idname
 end
 
 function tabledb:addfield(fieldname, fieldtype, aliasname, is_query)
@@ -180,7 +189,7 @@ function tabledb:_get_query_object(t, is_pagination)
 	local offset = t[tabledb.OFFSET] or 0
 	local key = ""
 	local value = {}
-	local id = t["id"] or t["_id"]
+	local id = t[self.idname] or t["_id"]
 	local nt = self:_filter_field(t)
 
 	--t["_id"] = nil
@@ -215,6 +224,8 @@ end
 
 function tabledb:count(t)
 	local query = self:_get_query_object(t)
+
+	nws.log(query);
 
 	local _, data = self.table:count(query)
 	--self.table:count(query, resume)
@@ -273,7 +284,7 @@ function tabledb:insert(t)
 	local err, data = self.table:insertOne(nil, nt)
 
 	if not err then
-		err, data = self.table:updateOne({_id=data._id}, {[self.table_name .. "_id"]=data._id})
+		err, data = self.table:updateOne({_id=data._id}, {[self.idname]=data._id})
 	end
 	--self.table:insertOne(nil, t, resume)
 	--local _, data = yield()

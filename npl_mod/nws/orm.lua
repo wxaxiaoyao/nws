@@ -75,6 +75,15 @@ function orm:get_value_id(t)
 	return self._db:get_value_id(t)
 end
 
+function orm:get_tablename()
+	return self._db:get_tablename()
+end
+
+function orm:get_idname()
+	--return self._db:get_tablename() .. "_id"
+	return "id"
+end
+
 function orm:set_db_type(typ)
 	self._db_type = typ
 
@@ -97,6 +106,18 @@ function orm:find_one(t)
 end
 
 function orm:find(t) 
+	t = t or {}
+	t.page = t.page or 1
+	t.page_size = t.page_size or self._db.DEFAULT_LIMIT
+	
+	t.page = tonumber(t.page)
+	t.page_size = tonumber(t.page_size)
+
+	if t.page < 1 then t.page = 1 end
+	if t.page_size < 1 then t.page_size = self._db.DEFAULT_LIMIT end
+
+	t[self._db.LIMIT] = t.page_size or self._db.DEFAULT_LIMIT
+	t[self._db.OFFSET] = t[self._db.LIMIT] * ((t.page or 1) - 1)
 	return self._db:find(t)
 end
 

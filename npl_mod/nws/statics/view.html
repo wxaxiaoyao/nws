@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>KEEPWORK后台管理</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"></title>
+
+		<!-- 新 Bootstrap 核心 CSS 文件 -->
+		<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+		 
+		<!-- 可选的Bootstrap主题文件（一般不使用） -->
+		<!--<script src="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"></script>-->
+		 
+		<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+		<script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+		 
+		<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+		<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="http://cdn.static.runoob.com/libs/angular.js/1.4.6/angular.min.js"></script>
+
+		<!--<link href="/statics/assets/css/nws.css" type="text/css" rel="stylesheet">-->
+		<style>
+.nws_center_wrap {
+	display: flex;
+	justify-content: center;
+}
+
+a:hover {
+	cursor: pointer;
+}
+		</style>
+	</head>
+<body>
+	<div ng-controller="mainController">
+		<div ng-show='operation == "VIEW"' style="margin:10px">
+			<form role="form" class="form-inline">
+				<div class="form-group" ng-repeat="obj in self_data.fieldlist track by $index" ng-if="!obj.is_query" style="margin:4px">
+					<label>\{{obj.aliasname || obj.fieldname}}:</label>
+					<input type="text" class="form-control" id="\{{obj.fieldname}}" />
+				</div>
+				<button ng-click="query()" class="btn btn-default">查询</button>
+				<!--<button ng-click="delete()" class="btn btn-default">删除</button>-->
+				<a ng-click="insert_one()">新增</a>
+			</form>
+		</div>
+		<div ng-show='operation == "INSERT_VIEW" || operation == "UPDATE_VIEW"'>
+			<form role="form" class="form-horizontal">
+				<div class="form-group" ng-repeat="field in self_data.fieldlist track by $index">
+					<div>
+						<div class="col-sm-offset-2 col-sm-2">
+							<label class="pull-right">\{{field.aliasname || field.fieldname}}:</label>
+						</div>
+						<div class="col-sm-4">
+							<input ng-disabled='field.fieldname == "id"' type="text" class="form-control" id='\{{"upsert_" + field.fieldname}}'/>
+						</div>
+					</div>
+				</div>
+				<div class="nws_center_wrap">
+					<button ng-click="upsert_submit()" class="btn btn-default" style="margin:5px">确认</button>
+					<button ng-click="upsert_cancel()" class="btn btn-default" style="margin:5px">取消</button>
+				</div>
+			</form>
+		</div>
+		<table class="table table-striped">
+			<thead>
+				<th ng-repeat="obj in self_data.fieldlist track by $index">\{{obj.aliasname || obj.fieldname}}</th>
+				<th>操作</th>
+			</thead>
+			<tbody>
+				<tr ng-repeat="data in self_data.datalist track by $index">
+					<td ng-repeat="field in self_data.fieldlist track by $index">\{{data[field.fieldname]}}</td>
+					<td>
+						<button class="btn" ng-click="update_one(data)">修改</button>
+						<button class="btn" ng-click="delete_one(data)">删除</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<div class="nws_center_wrap">
+			<button class="btn btn-default" ng-click="up_page()">上一页</button>
+			<button class="btn btn-default" ng-click="down_page()" style="margin:0px 20px">下一页</button>
+		</div>
+	</div>
+</body>
+
+<script>window.self_data={* self_data *}</script>
+<script>
+
+app = angular.module("app", []);
+
+app.controller("mainController", ["$scope", "$http", function($scope, $http){
+	self_data = self_data || {};
+	self_data.page = 1;
+	self_data.page_size = 10;
+
+	$scope.self_data = self_data;
+
+	$scope.params = {};
+	$scope.operation = "VIEW";
+
+	<!--设置表单的值-->
+	function set_view_value(params) {
+		params = params || {};
+		for (var i = 0; i < self_data.fieldlist.length; i++) {
+			var field = self_data.fieldlist[i];
+			$("#upsert_" + field.fieldname).val(params[field.fieldname]);
+		}
+	}
+
+	<!--获取表单值-->
+	function get_view_value() {
+		var result = {};
+		for (var i = 0; i < self_data.fieldlist.length; i++) {
+			var field = self_data.fieldlist[i];
+			result[field.fieldname] = $("#upsert_" + field.fieldname).val();
+		}
+		return result;
+	}
+
+	<!--新增记录-->
+	$scope.insert_one = function() {
+		$scope.operation = "INSERT_VIEW";
+	}
+
+	<!--增改记录-->
+	$scope.upsert_submit = function() {
+		var obj = get_view_value();
+		<!--console.log(obj);-->
+		if ($scope.operation == "INSERT_VIEW") {
+			$http({
+				url: self_data.url_prefix,
+				method: "POST",
+				data: obj,
+			}).then(function(){
+				$scope.query();
+			}, function(){
+				console.log("添加记录失败");
+			});
+		} else {
+			$http({
+				url:self_data.url_prefix,
+				method: "PUT",
+				data: obj,
+			}).then(function(){
+				$scope.query();
+			}, function(){
+				console.log("更新记录失败");
+			});
+		}
+	}
+
+	<!--取消增改-->
+	$scope.upsert_cancel = function() {
+		$scope.operation = "VIEW";
+	}
+
+	<!--删除单条记录-->
+	$scope.delete_one = function(obj){
+		$http({
+			url: $scope.self_data.url_prefix + '/' + obj.id,
+			method: "DELETE",
+		}).then(function(){
+			$scope.query();
+		}, function(){
+			console.log("删除失败");
+		});		
+	}
+
+	<!--更新记录-->
+	$scope.update_one = function(obj) {
+		$scope.operation = "UPDATE_VIEW";
+		set_view_value(obj);
+		console.log(obj);
+	}
+
+	<!--上一页-->
+	$scope.up_page = function(){
+		self_data.page = self_data.page > 1 ? self_data.page - 1 : 1;
+		$scope.query();
+	}
+
+	<!--下一页-->
+	$scope.down_page = function(){
+		var max_page_count = Math.ceil(self_data.total / self_data.page_size);
+		self_data.page = self_data.page < max_page_count ? self_data.page + 1 : max_page_count;
+		$scope.query();
+	}
+
+	<!--查询-->
+	$scope.query = function(){
+		var url = self_data.url_prefix + "/view"  + "?page=" + self_data.page + "&page_size=" + self_data.page_size;
+		for(var i = 0; i < self_data.querylist.length; i++) {
+			var obj = self_data.querylist[i];
+			var fieldname = obj.fieldname;
+			var fieldvalue = $("#" + fieldname).val() || undefined;
+			if (fieldvalue) {
+				if (url == self_data.url) {
+					url = url + "?" + fieldname + "=" + fieldvalue;
+				} else {
+					url = url + "&" + fieldname + "=" + fieldvalue;
+				}
+			}
+		}
+
+		window.location.href = url;
+	}
+
+	<!--删除-->
+	$scope.delete = function() {
+		var params = {};
+		for(var i = 0; i < self_data.querylist.length; i++) {
+			var obj = self_data.querylist[i];
+			var fieldname = obj.fieldname;
+			var fieldvalue = $("#" + fieldname).val() || undefined;
+			params[fieldname] = fieldvalue;
+		}
+		$.ajax({
+			url:self_data.url_prefix,
+			type:"DELETE",
+			dataType: "json",
+			data: params,
+			success: function(result, status, xhr){
+				console.log(result);
+				console.log(status);
+				console.log(xhr);
+			},
+			error: function(xhr, status, xhr){
+
+			},
+		});
+
+	}
+}]);
+
+angular.bootstrap(document, ["app"]);
+</script>
+</html>

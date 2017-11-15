@@ -1,4 +1,4 @@
-local handler = nws.import(nws.get_nws_path_prefix() .. "npl_handler")
+local handler = nws.import(nws.get_nws_path_prefix() .. "npl/handler")
 local util = commonlib.gettable("nws.util")
 local request = commonlib.gettable("nws.request")
 local response = commonlib.gettable("nws.response")
@@ -44,7 +44,7 @@ function http:start(config)
 	-- 创建子线程
 	handler:init_child_threads()
 
-	local filename = nws.get_nws_path_prefix() .. "npl_handler.lua"
+	local filename = nws.get_nws_path_prefix() .. "npl/handler.lua"
 	local port = config.port or 8888
 
 	NPL.AddPublicFile(filename, -10)
@@ -72,6 +72,16 @@ function http:handle(msg)
 
 	self:do_filter(ctx, http.filter, 1)
 end
+
+-- 处理webserver请求
+function http:handle_request(obj)
+	if not obj then
+		return 
+	end
+
+	self:handle(obj.headers)
+end
+
 -- 注册过滤器
 function http:register_filter(filter_func)
 	table.insert(self.filter, filter_func)

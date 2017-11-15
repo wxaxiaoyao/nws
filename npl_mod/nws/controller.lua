@@ -136,7 +136,6 @@ function controller:view(ctx)
 	local fieldlist = self.model:get_field_list()
 	local datalist = self.model:find(params) or {}
 	--local total = self.model:count(params) or 0
-	local valuelist = {}
 	local querylist = {}
 
 	-- 查询字段
@@ -146,41 +145,19 @@ function controller:view(ctx)
 		end
 	end
 
-	for _, data in ipairs(datalist or {}) do
-		local value = {}
-		for _, field in ipairs(fieldlist or {}) do
-			value[#value+1] = data[field.fieldname] or ""
-		end
-		--value["id"] = self.model:get_value_id(value)
-		valuelist[#valuelist+1] = value
-	end
 	--nws.log(fieldlist)
-
-	
 	local context = {
 		total = total or 5,
 		fieldlist = fieldlist,
-		valuelist = valuelist,
+		datalist = datalist,
 		querylist = querylist,
 		url_prefix = "/" .. self.model:get_tablename(),
-		url = "/" .. self.model:get_tablename() .. "/view",
 	}
 
 	context.self_data = nws.util.to_json(context)
 
-	ctx.response:render("html/view.html", context)
-end
-
-function controller:upsert_view(ctx)
-	if not self.model then
-		ctx.response:send("无效model", 500)
-	end
-	local url_params = ctx.request.url_params or {}
-	local params = ctx.request:get_params() or {}
-	local id = url_params[1] or params.id
-	local data = self.model:find_one({[self.model:get_idname()]=id})
-
-	ctx.response:render("upsert_view.html",{self_data = data and nws.util.to_json(data)})
+	local path_prefix = nws.get_nws_path_prefix()
+	ctx.response:send(ctx.response.template.render(path_prefix .. "statics/view.html", context))
 end
 
 return controller

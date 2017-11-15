@@ -1,4 +1,4 @@
-local current_dir = debug.getinfo(1,'S').source:match('^[@%./\\]*(.+[/\\])[^/\\]+$')
+local current_dir = debug.getinfo(1,'S').source:match('^[@%./\\]*(.+[/\\])npl[/\\][^/\\]+$')
 
 NPL.load(current_dir .. "nws.lua")
 
@@ -58,7 +58,7 @@ local function activate()
 	if msg.msg_type == handler.MSG_TYPE_REQUEST_BEGIN then
 		nws.http:handle(msg)
 
-		NPL.activate("(main)" .. current_dir .. "npl_handler.lua", {
+		NPL.activate("(main)" .. current_dir .. "npl/handler.lua", {
 			msg_type = handler.MSG_TYPE_REQUEST_FINISH,
 			thread_name = __rts__:GetName(),
 		})
@@ -81,7 +81,7 @@ local function activate()
 		msg.msg_type = handler.MSG_TYPE_REQUEST_BEGIN
 
 		nws.log(thread.thread_name .. " begin request, msg_count:" .. thread.msg_count)
-		NPL.activate(string.format("(%s)" .. nws.get_nws_path_prefix() .. "npl_handler.lua", thread.thread_name), msg)
+		NPL.activate(string.format("(%s)" .. nws.get_nws_path_prefix() .. "npl/handler.lua", thread.thread_name), msg)
 	end
 end
 

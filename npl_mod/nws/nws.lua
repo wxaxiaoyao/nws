@@ -68,6 +68,7 @@ nws.settable = settable
 nws.import = import
 nws.server_type = server_type
 nws.get_nws_path_prefix = get_nws_path_prefix
+nws.filemap = {}
 
 function nws.inherit(base, derived)
 	derived = derived or {}
@@ -178,6 +179,23 @@ nws.handle = function(msg)
 	nws.http:handle(msg)
 end
 
+nws.getfile = function(path)
+	if nws.filemap[path] then
+		return nws.filemap[path]
+	end
+
+	local file = io.open(path, "rb")
+
+	if not file then
+		return ""
+	end
+
+	nws.filemap[path] = file:read("a")
+	file:close()
+
+	return nws.filemap[path]
+end
+
 -- 初始化server
 function init()
 	-- 服务器类型 npl lua
@@ -209,12 +227,12 @@ function init()
 	nws.router = import(nws_path_prefix .. "router")
 	nws.controller = import(nws_path_prefix .. "controller")
 	nws.mimetype = import(nws_path_prefix .. "mimetype")
-	nws.request = import(nws_path_prefix .. server_type .. "_request")
-	nws.response = import(nws_path_prefix .. server_type .. "_response")
-	nws.http = import(nws_path_prefix .. server_type .. "_http")
-	nws.util = import(nws_path_prefix .. server_type .. "_util")
-	nws.log = import(nws_path_prefix .. server_type .. "_log")
-	nws.cache = import(nws_path_prefix .. server_type .. "_cache")
+	nws.request = import(nws_path_prefix .. server_type .. "/request")
+	nws.response = import(nws_path_prefix .. server_type .. "/response")
+	nws.http = import(nws_path_prefix .. server_type .. "/http")
+	nws.util = import(nws_path_prefix .. server_type .. "/util")
+	nws.log = import(nws_path_prefix .. server_type .. "/log")
+	nws.cache = import(nws_path_prefix .. server_type .. "/cache")
 
 	nws.test = import(nws_path_prefix .. "test")
 	nws.orm:init(config.database)

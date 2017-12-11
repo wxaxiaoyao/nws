@@ -37,6 +37,7 @@ router.controller_handler = {}
 router.tree_handler = route:new()
 router.controller_paths = {"controller/"}
 router.auto_match_url_prefix = ""
+router.default_handler = nil
 
 local method_list = {
 	get = "get",
@@ -246,27 +247,29 @@ function router:handle(ctx)
 		end
 	end
 
-	url_params = {}
-	temp = string.gsub(path, self.auto_match_url_prefix, "")
-	for word in string.gmatch(temp, '([^/]+)') do
-		url_params[#url_params+1] = word
-	end
-	-- 控制器自动匹配
-	controller = self:get_controller(url_params[1]) 
-	table.remove(url_params, 1)
-	
-	--log(url_params)
-	--log(controller)
-	if url_params[1] == nil or tonumber(url_params[1]) then
-		funcname = method
-	else
-		funcname = url_params[1]
-		table.remove(url_params,1)
-	end
+	if self.auto_match_url_prefix and #self.auto_match_url_prefix > 0 and (string.find(path, self.auto_match_url_prefix) == 1) then
+		url_params = {}
+		temp = string.gsub(path, self.auto_match_url_prefix, "")
+		for word in string.gmatch(temp, '([^/]+)') do
+			url_params[#url_params+1] = word
+		end
+		-- 控制器自动匹配
+		controller = self:get_controller(url_params[1]) 
+		table.remove(url_params, 1)
+		
+		--log(url_params)
+		--log(controller)
+		if url_params[1] == nil or tonumber(url_params[1]) then
+			funcname = method
+		else
+			funcname = url_params[1]
+			table.remove(url_params,1)
+		end
 
-	if type(controller) == "table" and controller[funcname] then
-		ctx.request.url_params = url_params
-		return (controller[funcname])(controller, ctx)
+		if type(controller) == "table" and controller[funcname] then
+			ctx.request.url_params = url_params
+			return (controller[funcname])(controller, ctx)
+		end
 	end
 
 	-- 正则路由
@@ -283,6 +286,9 @@ function router:handle(ctx)
 		end
 	end
 
+	if type(self.default_handler) == "function" then
+		return self.default_handler(ctx)
+	end
 	print("no router match")
 	ctx.response:send(nil, 204)
 	return nil

@@ -164,10 +164,12 @@ function response:send_file(path, ext)
 		return
 	end
 
+	local statics_dir = nws.config.statics_dir or nws.default_config.statics_dir
+	path = string.match(path, '([^?]*)')
 	path = string.gsub(path, '//', '/')
 	ext = ext or path:match('^.+%.([a-zA-Z0-9]+)$')
 
-	local file = io.open("./" .. path, "rb")
+	local file = io.open(statics_dir .. path, "rb")
 
 	if not file then 
 		self:send("ÎÄ¼þÂ·¾¶´íÎó:" .. path, 404)
@@ -177,6 +179,7 @@ function response:send_file(path, ext)
 	local content = file:read("*a")
 	file:close()
 
+	--nws.log(content)
 	self:set_content_type(mimetype[ext])
 	self:send(content)
 end

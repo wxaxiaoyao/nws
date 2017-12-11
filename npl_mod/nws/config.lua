@@ -3,6 +3,7 @@ local config = {
 	--server_type = "npl",
 	server_ip = nil,
 	server_port = 8888,
+	statics_dir = "statics",
 	database = {
 		db_type = "mysql",
 		tabledb = {             -- tabledb 数据库配置

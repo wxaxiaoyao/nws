@@ -44,11 +44,14 @@ function test:start(filereg, funcreg)
 	filereg = ".*" .. filereg .. ".*_test.lua$"
 	funcreg = ".*" .. funcreg .. ".*_test$"
 
-	--nws.log(filereg, funcreg)
-	
 	local obj = debug.getinfo(2)
-	if not string.match(obj.short_src, filereg) then
-		nws.log("文件不匹配:", obj.short_src)
+
+	--nws.log(obj)
+	--nws.log(filereg, funcreg, obj.source)
+	--nws.log(string.match(obj.source, filereg))
+	
+	if not string.match(obj.source, filereg) then
+		nws.log("文件不匹配:", obj.source)
 		return 
 	end
 

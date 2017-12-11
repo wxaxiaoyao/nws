@@ -120,6 +120,7 @@ function tabledb:new()
 	
 	obj._fields = {}
 
+	obj.idname = "id"
 	return obj
 end
 
@@ -127,13 +128,41 @@ function tabledb:tablename(name)
 	self.table_name = name
 	--self.table = fake_tabledb
 	self.table = l_db[name]
+
+	-- id字段默认存在
+	self:addfield(self.idname, "number", "ID", true)
 end
 
-function tabledb:addfield(fieldname, fieldtype)
+function tabledb:get_tablename()
+	return self.table_name
+end
+
+function tabledb:get_idname()
+	return self.idname
+end
+
+function tabledb:addfield(fieldname, fieldtype, aliasname, is_query)
 	self._fields[fieldname] = {
 		fieldname = fieldname,
 		fieldtype = fieldtype,
+		aliasname = aliasname,
+		is_query = is_query,
 	}
+
+	self._fields[#self._fields+1] = self._fields[fieldname]
+end
+
+function tabledb:get_value_id(t)
+	if type(t) == "table" then
+		return t["_id"]
+	end
+
+	return 0
+end
+
+-- 获取字段列表
+function tabledb:get_field_list()
+	return self._fields
 end
 
 -- 过滤字段
@@ -160,7 +189,7 @@ function tabledb:_get_query_object(t, is_pagination)
 	local offset = t[tabledb.OFFSET] or 0
 	local key = ""
 	local value = {}
-	local id = t["id"] or t["_id"]
+	local id = t[self.idname] or t["_id"]
 	local nt = self:_filter_field(t)
 
 	--t["_id"] = nil
@@ -196,6 +225,8 @@ end
 function tabledb:count(t)
 	local query = self:_get_query_object(t)
 
+	nws.log(query);
+
 	local _, data = self.table:count(query)
 	--self.table:count(query, resume)
 	--local _, data = yield()
@@ -230,42 +261,46 @@ function tabledb:update(q, t)
 	local nq = self:_get_query_object(q)
 	local nt = self:_filter_field(t)
 
-	local _, data = self.table:updateOne(nq, nt)
+	local err, data = self.table:updateOne(nq, nt)
 	--self.table:updateOne(query, o, resume)
 	--local _, data = yield()
 
-	return data
+	return err, data
 end
 
 function tabledb:delete(t)
 	local query = self:_get_query_object(t)
 
-	local _, data = self.table:delete(query)
+	local err, data = self.table:delete(query)
 	--self.table:delete(query, resume)
 	--local _, data = yield()
 
-	return data
+	return err, data
 end
 
 function tabledb:insert(t)
 	local nt = self:_filter_field(t)
 
-	local _, data = self.table:insertOne(nil, nt)
+	local err, data = self.table:insertOne(nil, nt)
+
+	if not err then
+		err, data = self.table:updateOne({_id=data._id}, {[self.idname]=data._id})
+	end
 	--self.table:insertOne(nil, t, resume)
 	--local _, data = yield()
 
-	return data
+	return err, data
 end
 
 function tabledb:upsert(q, t)
 	local nq = self:_get_query_object(q)
 	local nt = self:_filter_field(t)
 
-	local _, data = self.table:insertOne(nq, nt)
+	local err, data = self.table:insertOne(nq, nt)
 	--self.table:insertOne(query, t, resume)
 	--local _, data = yield()
 
-	return data
+	return err, data
 end
 
 return tabledb

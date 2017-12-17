@@ -8,7 +8,7 @@ handler.MSG_TYPE_REQUEST_BEGIN = 1
 handler.MSG_TYPE_REQUEST_FINISH = 2 
 
 function handler:init_child_threads() 
-	print("------------------init_child_threads-------------------")
+	--print("------------------init_child_threads-------------------")
 	if self.is_inited then
 		return 
 	end
@@ -66,7 +66,7 @@ local function activate()
 		thread_name = msg.thread_name
 		thread = handler.threads[thread_name]
 		thread.msg_count = thread.msg_count - 1
-		nws.log(thread.thread_name .. " finish request, msg_count:" .. thread.msg_count)
+		--nws.log(thread.thread_name .. " finish request, msg_count:" .. thread.msg_count)
 	else
 		-- http 请求
 		-- 静态资源 主线程直接处理，可做缓存
@@ -80,7 +80,7 @@ local function activate()
 		thread.msg_count = thread.msg_count + 1
 		msg.msg_type = handler.MSG_TYPE_REQUEST_BEGIN
 
-		nws.log(thread.thread_name .. " begin request, msg_count:" .. thread.msg_count)
+		--nws.log(thread.thread_name .. " begin request, msg_count:" .. thread.msg_count)
 		NPL.activate(string.format("(%s)" .. nws.get_nws_path_prefix() .. "npl/handler.lua", thread.thread_name), msg)
 	end
 end

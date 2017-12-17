@@ -188,16 +188,25 @@ function router:handle(ctx)
 	local controller = nil
 	local handle = nil
 	local route_handle = nil
+	local id = nil
 
 	-- 处理回调执行
 	local handle_func = function(handle, ctx)
 		local funcname = handle[method] or handle["any"]
 		local controller = handle.controller
+		nws.log(funcname, controller)
 		if funcname then
 			if type(controller)	== "function" then
 				return controller(ctx)
-			elseif type(controller) == "table" and controller[funcname] then
-				return (controller[funcname])(controller, ctx)
+			elseif type(controller) == "table" then
+				funcname = handle[method] or method
+				if controller[funcname] then
+					return (controller[funcname])(controller, ctx)
+				end
+				funcname = handle["any"] or "any"
+				if controller[funcname] then
+					return (controller[funcname])(controller, ctx)
+				end
 			else
 				--error("controller type error")
 			end
@@ -214,7 +223,12 @@ function router:handle(ctx)
 	handle = self.controller_handler[(string.gsub(path, '/[%w%d]+$', ''))]
 	if handle then
 		funcname = string.match(path,'/([%w%d]+)$')
+		id = tonumber(funcname)
 		controller = handle.controller
+		if id then
+			ctx.request.url_params = {id}
+			funcname = method
+		end
 		if controller[funcname] then
 			return (controller[funcname])(controller, ctx)
 		end
@@ -286,10 +300,10 @@ function router:handle(ctx)
 		end
 	end
 
+	print("no router match")
 	if type(self.default_handler) == "function" then
 		return self.default_handler(ctx)
 	end
-	print("no router match")
 	ctx.response:send(nil, 204)
 	return nil
 end

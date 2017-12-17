@@ -36,18 +36,25 @@ function response:new(req)
 	self.__index = self
 	obj.template = template
 
-	obj._is_send = false
-	obj.request = req
-	obj.charset = 'utf-8'
-	obj.status = '200'
-	obj.content_type = mimetype.html
-	obj.headers = {
-		--['status'] = '200',
-		['Content-Type'] = mimetype.html
-	}
+	obj:init(req)
 	return obj
 end
 
+function response:init(req)
+	self.template = template
+
+	self._is_send = false
+	self.request = req
+	self.charset = 'utf-8'
+	self.status = '200'
+	self.content_type = mimetype.html
+	self.headers = {
+		--['status'] = '200',
+		['Content-Type'] = mimetype.html
+	}
+
+	return self
+end
 
 function response:set_status(status)
 	if status then 	self.status = tostring(status) end
@@ -139,6 +146,10 @@ function response:render(view, context)
 	self:set_content(data)
 
 	self:_send()
+end
+
+function response:is_send() 
+	return self._is_send
 end
 
 -- ·¢ËÍÊı¾İ

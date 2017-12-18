@@ -10,11 +10,13 @@ local util = commonlib.gettable("WebServer.util");
 -----------------------------------------------
 ]]
 
-NPL.load("(gl)script/ide/System/os/GetUrl.lua");
+NPL.load("(gl)script/ide/System/os/GetUrl.lua")
+NPL.load("(gl)script/ide/Encoding.lua")
 NPL.load('script/ide/Json.lua')
 NPL.load("(gl)script/ide/System/Encoding/jwt.lua")
 --local requests = require("requests")
 
+local Encoding = commonlib.gettable("commonlib.Encoding");
 local jwt = commonlib.gettable("System.Encoding.jwt")
 local util = commonlib.gettable("nws.util");
 local config = commonlib.gettable("nws.config");
@@ -101,6 +103,14 @@ end
 function util.decode_jwt(token, secret)
 	secret = secret or config.secret or "keepwork"
 	return jwt.decode(token, secret)
+end
+
+function util.encode_base64(text)
+	return Encoding.base64(text)
+end
+
+function util.decode_base64(text)
+	return Encoding.unbase64(text)
 end
 
 function util.md5(msg)

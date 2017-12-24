@@ -300,7 +300,7 @@ function router:handle(ctx)
 		end
 	end
 
-	print("no router match")
+	print("no router match:" .. path)
 	if type(self.default_handler) == "function" then
 		return self.default_handler(ctx)
 	end

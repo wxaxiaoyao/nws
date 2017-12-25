@@ -129,6 +129,7 @@ function tabledb:tablename(name)
 	--self.table = fake_tabledb
 	self.table = l_db[name]
 
+	self.idname = self.table_name .. "_id"
 	-- id字段默认存在
 	self:addfield(self.idname, "number", "ID", true)
 end
@@ -142,14 +143,21 @@ function tabledb:get_idname()
 end
 
 function tabledb:addfield(fieldname, fieldtype, aliasname, is_query)
-	self._fields[fieldname] = {
-		fieldname = fieldname,
-		fieldtype = fieldtype,
-		aliasname = aliasname,
-		is_query = is_query,
-	}
+	if not fieldname or not fieldtype then
+		return 
+	end
 
-	self._fields[#self._fields+1] = self._fields[fieldname]
+	local field = self._fields[fieldname] or {}
+	field.fieldname = fieldname
+	field.fieldtype = fieldtype
+	field.aliasname = aliasname
+	field.is_query = is_query
+
+	if not self._fields[fieldname] then
+		self._fields[#self._fields+1] = field
+	end
+
+	self._fields[fieldname] = field
 end
 
 function tabledb:get_value_id(t)
@@ -241,6 +249,10 @@ function tabledb:find(t)
 	--self.table:find(query, resume)
 	--local err, data = yield()
 	
+	for _, x in ipairs(data or {}) do
+		x[self.idname] = x._id
+	end
+
 	return data or {}
 end
 

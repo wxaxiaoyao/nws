@@ -36,18 +36,25 @@ function response:new(req)
 	self.__index = self
 	obj.template = template
 
-	obj._is_send = false
-	obj.request = req
-	obj.charset = 'utf-8'
-	obj.status = '200'
-	obj.content_type = mimetype.html
-	obj.headers = {
-		--['status'] = '200',
-		['Content-Type'] = mimetype.html
-	}
+	obj:init(req)
 	return obj
 end
 
+function response:init(req)
+	self.template = template
+
+	self._is_send = false
+	self.request = req
+	self.charset = 'utf-8'
+	self.status = '200'
+	self.content_type = mimetype.html
+	self.headers = {
+		--['status'] = '200',
+		['Content-Type'] = mimetype.html
+	}
+
+	return self
+end
 
 function response:set_status(status)
 	if status then 	self.status = tostring(status) end
@@ -141,6 +148,10 @@ function response:render(view, context)
 	self:_send()
 end
 
+function response:is_send() 
+	return self._is_send
+end
+
 -- 发送数据
 function response:send(data, status_code)
 	data = data or ""
@@ -164,10 +175,12 @@ function response:send_file(path, ext)
 		return
 	end
 
+	local statics_dir = nws.config.statics_dir or nws.default_config.statics_dir
+	path = string.match(path, '([^?]*)')
 	path = string.gsub(path, '//', '/')
 	ext = ext or path:match('^.+%.([a-zA-Z0-9]+)$')
 
-	local file = io.open("./" .. path, "rb")
+	local file = io.open(statics_dir .. path, "rb")
 
 	if not file then 
 		self:send("文件路径错误:" .. path, 404)
@@ -177,6 +190,7 @@ function response:send_file(path, ext)
 	local content = file:read("*a")
 	file:close()
 
+	--nws.log(content)
 	self:set_content_type(mimetype[ext])
 	self:send(content)
 end

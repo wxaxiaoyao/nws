@@ -33,7 +33,7 @@ monitor() {
 		let time=current_time-last_exec_time
 		last_exec_time=$current_time
 
-		if [[ $time -gt 10 ]]; then
+		if [[ $time -gt 2 ]]; then
 			echo "restart webserver..."
 			restart_server
 		#else

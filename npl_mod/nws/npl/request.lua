@@ -15,6 +15,17 @@ local function format_headers(headers)
 	end
 end
 
+function request:init(msg)
+	format_headers(msg)
+	self.nid = msg.tid or msg.nid
+	self.headers= msg
+	self.method = msg.method
+	self.url = msg.url
+	self.path = string.gsub(self.url, '?.*$', '') 
+
+	return self
+end
+
 function request:new(msg)
 	if not msg then	
 		return nil
@@ -25,12 +36,7 @@ function request:new(msg)
 	setmetatable(obj, self)
 	self.__index = self
 	
-	format_headers(msg)
-	obj.nid = msg.tid or msg.nid
-	obj.headers= msg
-	obj.method = msg.method
-	obj.url = msg.url
-	obj.path = string.gsub(obj.url, '?.*$', '') 
+	obj:init(msg)
 	
 	return obj
 end

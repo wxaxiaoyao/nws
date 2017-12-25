@@ -10,13 +10,16 @@ local util = commonlib.gettable("WebServer.util");
 -----------------------------------------------
 ]]
 
-NPL.load("(gl)script/ide/System/os/GetUrl.lua");
+NPL.load("(gl)script/ide/System/os/GetUrl.lua")
+NPL.load("(gl)script/ide/Encoding.lua")
 NPL.load('script/ide/Json.lua')
 NPL.load("(gl)script/ide/System/Encoding/jwt.lua")
 --local requests = require("requests")
 
+local Encoding = commonlib.gettable("commonlib.Encoding");
 local jwt = commonlib.gettable("System.Encoding.jwt")
 local util = commonlib.gettable("nws.util");
+local config = commonlib.gettable("nws.config");
 
 -- Decode an URL-encoded string (see RFC 2396)
 function util.decode_url(str)
@@ -93,11 +96,21 @@ function util.from_json(s)
 end
 
 function util.encode_jwt(payload, secret, expire)
+	secret = secret or config.secret or "keepwork"
 	return jwt.encode(payload, secret, nil, expire)
 end
 
 function util.decode_jwt(token, secret)
+	secret = secret or config.secret or "keepwork"
 	return jwt.decode(token, secret)
+end
+
+function util.encode_base64(text)
+	return Encoding.base64(text)
+end
+
+function util.decode_base64(text)
+	return Encoding.unbase64(text)
 end
 
 function util.md5(msg)
@@ -129,25 +142,38 @@ end
 	--return res
 --end
 
-function util.get_url(params, callback)
+local requests = require("requests")
+function util.get_url(params)
 	local method = params.method or "GET"
 
-	if string.lower(method) == "get" then
-		params.qs = params.data
+	if params.headers then
+		params.headers['Content-Type'] = params.headers['Content-Type'] or "application/json"
 	else
-		params.form = params.data
+		params.headers = {['Content-Type'] = "application/json"}
 	end
-	--params.data = nil
 
-	System.os.GetUrl(params, function(code, data)
-		data.status_code = code
-		callback(data)
-		--log(data)
-	end)
-	--local code, data = yield()
+	if string.lower(method) == "get" then
+		params.params = params.data
+	end
+	local res = requests.request(method, params)
 
-	--log(data, true)
-	return nil
+	res.data = res.json()
+
+	return res
 end
+
+--function util.get_url(params, callback)
+	--local method = params.method or "GET"
+
+	--if string.upper(method) == "GET" then
+		--params.qs = params.data
+	--else
+		--params.form = params.data
+	--end
+
+	--local _, data = System.os.GetUrl(params)
+	--data.status_code = data.rcode
+	--return data
+--end
 
 return util

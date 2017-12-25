@@ -34,7 +34,7 @@ a:hover {
 	<div ng-controller="mainController">
 		<div ng-show='operation == "VIEW"' style="margin:10px">
 			<form role="form" class="form-inline">
-				<div class="form-group" ng-repeat="obj in self_data.fieldlist track by $index" ng-if="obj.is_query" style="margin:4px">
+				<div class="form-group" ng-repeat="obj in self_data.querylist track by $index">
 					<label>\{{obj.aliasname || obj.fieldname}}:</label>
 					<input type="text" class="form-control" id="\{{obj.fieldname}}" />
 				</div>

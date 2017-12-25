@@ -216,13 +216,13 @@ function init()
 			if not config then
 				nws.server_log("使用默认配置文件...")
 			end
-			config = config or import(nws.get_nws_path_prefix() .. "config")
 		end)
 	end
 
 	nws.server_log("----------------load config finish-------------")
 
-	nws.config = config
+	nws.default_config = import(nws_path_prefix .. "config")
+	nws.config = config or nws.default_config
 	nws.orm = import(nws_path_prefix .. "orm")
 	nws.router = import(nws_path_prefix .. "router")
 	nws.controller = import(nws_path_prefix .. "controller")

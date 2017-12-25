@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>KEEPWORK后台管理</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"></title>
+
+		<!-- 新 Bootstrap 核心 CSS 文件 -->
+		<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+		 
+		<!-- 可选的Bootstrap主题文件（一般不使用） -->
+		<!--<script src="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"></script>-->
+		 
+		<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+		<script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+		 
+		<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+		<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="http://cdn.static.runoob.com/libs/angular.js/1.4.6/angular.min.js"></script>
+	</head>
+<body>
+	<div ng-controller="mainController">
+		<div>
+			<form role="form" class="form-inline">
+				<div class="form-group" ng-repeat="obj in self_data.querylist track by $index">
+					<label>\{{obj.aliasname || obj.fieldname}}:</label>
+					<input type="text" class="form-control" id="\{{obj.fieldname}}">
+				</div>
+				<button ng-click="query()" class="btn btn-default">查询</button>
+				<!--<button ng-click="delete()" class="btn btn-default">删除</button>-->
+			</form>
+		</div>
+		<table class="table table-striped">
+			<thead>
+				<th ng-repeat="obj in self_data.fieldlist track by $index">\{{obj.aliasname || obj.fieldname}}</th>
+				<th>操作</th>
+			</thead>
+			<tbody>
+				<tr ng-repeat="list in self_data.valuelist track by $index">
+					<td ng-repeat="x in list track by $index">\{{x}}</td>
+					<td><button class="btn" ng-click="update_one(list[0])">修改</button></td>
+					<td><button class="btn" ng-click="delete_one(list[0])">删除</button></td>
+				</tr>
+			</tbody>
+		</table>
+		<div style="display:flex; justify-content:center;">
+			<button class="btn btn-default" ng-click="up_page()">上一页</button>
+			<button class="btn btn-default" ng-click="down_page()" style="margin:0px 20px">下一页</button>
+		</div>
+	</div>
+</body>
+
+<script>window.self_data={* self_data *}</script>
+<script>
+
+app = angular.module("app", []);
+
+app.controller("mainController", ["$scope", "$http", function($scope, $http){
+	self_data = self_data || {};
+	self_data.page = 1;
+	self_data.page_size = 1;
+
+	$scope.self_data = self_data;
+
+	$scope.params = {};
+	$scope.delete_one = function(id){
+		$http({
+			url: $scope.self_data.url_prefix + '/' + id,
+			method: "DELETE",
+		}).then(function(){
+			$scope.query();
+		}, function(){
+			console.log("删除失败");
+		});		
+	}
+
+	$scope.update_one = function(id) {
+
+	}
+
+	$scope.up_page = function(){
+		self_data.page = self_data.page > 1 ? self_data.page - 1 : 1;
+		select();
+	}
+
+	$scope.down_page = function(){
+		var max_page_count = Math.ceil(self_data.total / self_data.page_size);
+		self_data.page = self_data.page < max_page_count ? self_data.page + 1 : max_page_count;
+		select();
+	}
+
+	$scope.query = function(){
+		var url = self_data.url + "?page=" + self_data.page + "&page_size=" + self_data.page_size;
+		for(var i = 0; i < self_data.querylist.length; i++) {
+			var obj = self_data.querylist[i];
+			var fieldname = obj.fieldname;
+			var fieldvalue = $("#" + fieldname).val() || undefined;
+			if (fieldvalue) {
+				if (url == self_data.url) {
+					url = url + "?" + fieldname + "=" + fieldvalue;
+				} else {
+					url = url + "&" + fieldname + "=" + fieldvalue;
+				}
+			}
+		}
+
+		window.location.href = url;
+	}
+
+	$scope.delete = function() {
+		var params = {};
+		for(var i = 0; i < self_data.querylist.length; i++) {
+			var obj = self_data.querylist[i];
+			var fieldname = obj.fieldname;
+			var fieldvalue = $("#" + fieldname).val() || undefined;
+			params[fieldname] = fieldvalue;
+		}
+		$.ajax({
+			url:self_data.url_prefix,
+			type:"DELETE",
+			dataType: "json",
+			data: params,
+			success: function(result, status, xhr){
+				console.log(result);
+				console.log(status);
+				console.log(xhr);
+			},
+			error: function(xhr, status, xhr){
+
+			},
+		});
+
+	}
+}]);
+
+angular.bootstrap(document, ["app"]);
+</script>
+</html>

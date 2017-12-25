@@ -17,12 +17,15 @@ http.router = router
 http.util = util
 http.filter = filter
 
+local ctx = {}
+
 function http:init(config)
 
 end
 
 -- 静态文件处理
-function http:statics(req, resp)
+function http:statics(ctx)
+	local req, resp = ctx.request, ctx.response
 	local url = req.url
 	local path = url:match("([^?]+)")
 	local ext = path:match('^.+%.([a-zA-Z0-9]+)$')
@@ -56,17 +59,12 @@ function http:handle(msg)
 		return 
 	end
 
-	local req = request:new(msg)
-	local resp = response:new(req)
-	local ctx = {
-		request = req,
-		response = resp,
-	}
+	ctx.request = request:init(msg)
+	ctx.response = response:init(ctx.request)
 
-	log(req.method .. " " .. req.url .. "\n")
-	--log(req.path .. "\n")
+	log(ctx.request.method .. " " .. ctx.request.url .. "\n")
 	
-	if self:statics(req, resp) then
+	if self:statics(ctx) then
 		return
 	end
 
@@ -90,12 +88,15 @@ end
 -- 执行过滤器
 function http:do_filter(ctx, filters, i)
 	if not filters or i > #filters then
-		self:do_handle(ctx)
+		local ret = self:do_handle(ctx)
+		if not ctx.response:is_send() then
+			ctx.response:send(ret)
+		end
 		return 
 	end
 
 	(filters[i])(ctx, function()
-		do_filter(ctx, filters, i+1)
+		http:do_filter(ctx, filters, i+1)
 	end)
 end
 

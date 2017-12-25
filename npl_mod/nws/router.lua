@@ -37,6 +37,7 @@ router.controller_handler = {}
 router.tree_handler = route:new()
 router.controller_paths = {"controller/"}
 router.auto_match_url_prefix = ""
+router.default_handler = nil
 
 local method_list = {
 	get = "get",
@@ -187,16 +188,25 @@ function router:handle(ctx)
 	local controller = nil
 	local handle = nil
 	local route_handle = nil
+	local id = nil
 
 	-- 处理回调执行
 	local handle_func = function(handle, ctx)
 		local funcname = handle[method] or handle["any"]
 		local controller = handle.controller
+		nws.log(funcname, controller)
 		if funcname then
 			if type(controller)	== "function" then
 				return controller(ctx)
-			elseif type(controller) == "table" and controller[funcname] then
-				return (controller[funcname])(controller, ctx)
+			elseif type(controller) == "table" then
+				funcname = handle[method] or method
+				if controller[funcname] then
+					return (controller[funcname])(controller, ctx)
+				end
+				funcname = handle["any"] or "any"
+				if controller[funcname] then
+					return (controller[funcname])(controller, ctx)
+				end
 			else
 				--error("controller type error")
 			end
@@ -213,7 +223,12 @@ function router:handle(ctx)
 	handle = self.controller_handler[(string.gsub(path, '/[%w%d]+$', ''))]
 	if handle then
 		funcname = string.match(path,'/([%w%d]+)$')
+		id = tonumber(funcname)
 		controller = handle.controller
+		if id then
+			ctx.request.url_params = {id}
+			funcname = method
+		end
 		if controller[funcname] then
 			return (controller[funcname])(controller, ctx)
 		end
@@ -246,27 +261,29 @@ function router:handle(ctx)
 		end
 	end
 
-	url_params = {}
-	temp = string.gsub(path, self.auto_match_url_prefix, "")
-	for word in string.gmatch(temp, '([^/]+)') do
-		url_params[#url_params+1] = word
-	end
-	-- 控制器自动匹配
-	controller = self:get_controller(url_params[1]) 
-	table.remove(url_params, 1)
-	
-	--log(url_params)
-	--log(controller)
-	if url_params[1] == nil or tonumber(url_params[1]) then
-		funcname = method
-	else
-		funcname = url_params[1]
-		table.remove(url_params,1)
-	end
+	if self.auto_match_url_prefix and #self.auto_match_url_prefix > 0 and (string.find(path, self.auto_match_url_prefix) == 1) then
+		url_params = {}
+		temp = string.gsub(path, self.auto_match_url_prefix, "")
+		for word in string.gmatch(temp, '([^/]+)') do
+			url_params[#url_params+1] = word
+		end
+		-- 控制器自动匹配
+		controller = self:get_controller(url_params[1]) 
+		table.remove(url_params, 1)
+		
+		--log(url_params)
+		--log(controller)
+		if url_params[1] == nil or tonumber(url_params[1]) then
+			funcname = method
+		else
+			funcname = url_params[1]
+			table.remove(url_params,1)
+		end
 
-	if type(controller) == "table" and controller[funcname] then
-		ctx.request.url_params = url_params
-		return (controller[funcname])(controller, ctx)
+		if type(controller) == "table" and controller[funcname] then
+			ctx.request.url_params = url_params
+			return (controller[funcname])(controller, ctx)
+		end
 	end
 
 	-- 正则路由
@@ -283,7 +300,10 @@ function router:handle(ctx)
 		end
 	end
 
-	print("no router match")
+	print("no router match:" .. path)
+	if type(self.default_handler) == "function" then
+		return self.default_handler(ctx)
+	end
 	ctx.response:send(nil, 204)
 	return nil
 end

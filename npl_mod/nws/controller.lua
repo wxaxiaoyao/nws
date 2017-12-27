@@ -111,10 +111,12 @@ function controller:delete(ctx)
 	local url_params = ctx.request.url_params or {}
 	local params = ctx.request:get_params() or {}
 	
-	params[self.model:get_idname()]= url_params[1] or params.id
+	local id = url_params[1] or params.id
+	params[self.model:get_idname()] = id
 
 	if not id then
-		--ctx.response:send("缺少资源id", 400)
+		ctx.response:send("缺少资源id", 400)
+		return 
 	end
 
 	local err, data = self.model:delete(params)

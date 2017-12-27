@@ -194,7 +194,7 @@ function router:handle(ctx)
 	local handle_func = function(handle, ctx)
 		local funcname = handle[method] or handle["any"]
 		local controller = handle.controller
-		nws.log(funcname, controller)
+		--nws.log(funcname, controller)
 		if funcname then
 			if type(controller)	== "function" then
 				return controller(ctx)

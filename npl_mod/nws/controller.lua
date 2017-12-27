@@ -151,6 +151,7 @@ function controller:view(ctx)
 		fieldlist = fieldlist,
 		datalist = datalist,
 		querylist = querylist,
+		tablename = self.model:get_tablename(),
 		url_prefix = nws.config.api_url_prefix .. self.model:get_tablename(),
 	}
 

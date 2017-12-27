@@ -157,7 +157,7 @@ app.controller("mainController", ["$scope", "$http", function($scope, $http){
 	<!--删除单条记录-->
 	$scope.delete_one = function(obj){
 		$http({
-			url: $scope.self_data.url_prefix + '/' + obj.id,
+			url: $scope.self_data.url_prefix + '/' + (obj[self_data.tablename+"_id"] || obj._id),
 			method: "DELETE",
 		}).then(function(){
 			$scope.query();

@@ -22,6 +22,7 @@ function request:init(msg)
 	self.method = msg.method
 	self.url = msg.url
 	self.path = string.gsub(self.url, '?.*$', '') 
+	self.params = nil
 
 	return self
 end

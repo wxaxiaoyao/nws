@@ -104,6 +104,7 @@ end
 
 -- DELETE RESOURCE
 function controller:delete(ctx)
+	nws.log(self.model:get_idname())
 	if not self.model then
 		ctx.response:send("无效model", 500)
 	end

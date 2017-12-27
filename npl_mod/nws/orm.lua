@@ -80,8 +80,7 @@ function orm:get_tablename()
 end
 
 function orm:get_idname()
-	--return self._db:get_tablename() .. "_id"
-	return "id"
+	return self._db:get_idname()
 end
 
 function orm:set_db_type(typ)

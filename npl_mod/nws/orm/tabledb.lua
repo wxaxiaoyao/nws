@@ -120,7 +120,7 @@ function tabledb:new()
 	
 	obj._fields = {}
 
-	obj.idname = "id"
+	--obj.idname = "id"
 	return obj
 end
 

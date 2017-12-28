@@ -218,7 +218,7 @@ function tabledb:_get_query_object(t, is_pagination)
 	end
 
 	if key == "" then
-		key = "_id"
+		key = "+_id"
 		value["gt"] = 0
 	end
 

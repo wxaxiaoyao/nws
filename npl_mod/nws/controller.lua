@@ -138,7 +138,7 @@ function controller:view(ctx)
 	local params = ctx.request:get_params()
 	local fieldlist = self.model:get_field_list()
 	local datalist = self.model:find(params) or {}
-	--local total = self.model:count(params) or 0
+	local total = self.model:count(params) or 0
 	local querylist = {}
 
 	-- 查询字段
@@ -150,7 +150,7 @@ function controller:view(ctx)
 
 	--nws.log(fieldlist)
 	local context = {
-		total = total or 5,
+		total = total,
 		fieldlist = fieldlist,
 		datalist = datalist,
 		querylist = querylist,

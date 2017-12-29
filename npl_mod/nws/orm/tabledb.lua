@@ -218,7 +218,7 @@ function tabledb:_get_query_object(t, is_pagination)
 	end
 
 	if key == "" then
-		key = "+_id"
+		key = "_id"
 		value["gt"] = 0
 	end
 
@@ -233,7 +233,9 @@ end
 function tabledb:count(t)
 	local query = self:_get_query_object(t)
 
-	nws.log(query);
+	if query["_id"] then
+		query = {}
+	end
 
 	local _, data = self.table:count(query)
 	--self.table:count(query, resume)

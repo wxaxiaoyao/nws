@@ -60,6 +60,9 @@ function response:set_status(status)
 	if status then 	self.status = tostring(status) end
 end
 
+function response:set_content_type_by_ext(ext) 
+	self:set_content_type(ext and mimetype[ext])
+end
 
 function response:set_content_type(mime_type)
 	self.content_type = mime_type
@@ -175,12 +178,11 @@ function response:send_file(path, ext)
 		return
 	end
 
-	local statics_dir = nws.config.statics_dir or nws.default_config.statics_dir
 	path = string.match(path, '([^?]*)')
 	path = string.gsub(path, '//', '/')
 	ext = ext or path:match('^.+%.([a-zA-Z0-9]+)$')
 
-	local file = io.open(statics_dir .. path, "rb")
+	local file = io.open(path, "rb")
 
 	if not file then 
 		self:send("ÎÄ¼þÂ·¾¶´íÎó:" .. path, 404)

@@ -30,11 +30,15 @@ function http:statics(ctx)
 	local path = url:match("([^?]+)")
 	local ext = path:match('^.+%.([a-zA-Z0-9]+)$')
 	
-	if not ext then
+	local statics_dir = nws.config.statics_dir or nws.default_config.statics_dir
+	local prefix, sub_path = path:match("/([^/]+)(.*)")
+	local dir = statics_dir[prefix or ""]
+	if not dir or not ext then
 		return false
 	end
 
-	resp:send_file(path, ext)
+	path = dir .. sub_path;
+	resp:send_file(path)
 
 	return true
 end

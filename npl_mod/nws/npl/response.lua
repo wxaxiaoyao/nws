@@ -144,7 +144,7 @@ end
 
 -- ∑µªÿ ”Õº
 function response:render(view, context)
-	local data = template.compile("statics/" .. view)(context)
+	local data = template.compile(view)(context)
 	--self:set_content("<div>hello world</div>")
 	self:set_content(data)
 

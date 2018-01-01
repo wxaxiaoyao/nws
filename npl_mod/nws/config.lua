@@ -4,7 +4,7 @@ local config = {
 	server_ip = nil,
 	server_port = 8888,
 	statics_dir = {
-		www = "statics",
+		www = "www",
 	},
 
 	database = {

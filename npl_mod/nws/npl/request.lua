@@ -197,4 +197,9 @@ function request:get_params()
 	return self.params
 end
 
+function request:get_peername()
+	self.ip = self.ip or NPL.GetIP(self.nid)
+	return self.ip
+end
+
 return request

@@ -124,6 +124,10 @@ function tabledb:new()
 	return obj
 end
 
+function tabledb:db() 
+	return l_db
+end
+
 function tabledb:tablename(name)
 	self.table_name = name
 	--self.table = fake_tabledb

@@ -176,4 +176,17 @@ end
 	--return data
 --end
 
+-- 获取当前日期
+function util.get_date()
+	return os.date("%Y-%m-%d")
+end
+
+function util.get_time()
+	return os.date("%H:%M:%S")
+end
+
+function util.get_datetime()
+	return os.date("%Y-%m-%d %H:%M:%S")
+end
+
 return util

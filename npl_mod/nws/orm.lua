@@ -120,11 +120,18 @@ function orm:find(t)
 	return self._db:find(t)
 end
 
+local function get_datetime() 
+	return os.date("%Y-%m-%d %H:%M:%S")
+end
+
 function orm:upsert(q, t)
+	t.update_time = t.update_time or get_datetime()
 	return self._db:upsert(q, t)
 end
 
 function orm:insert(t)
+	t.update_time = t.update_time or get_datetime()
+	t.create_time = t.create_time or t.update_time
 	return self._db:insert(t)
 end
 
@@ -133,6 +140,7 @@ function orm:delete(t)
 end
 
 function orm:update(q, t)
+	t.update_time = t.update_time or get_datetime()
 	return self._db:update(q, t)
 end
 
@@ -141,7 +149,7 @@ function orm:execute(t)
 end
 
 function orm:db()
-	return self._db
+	return self._db:db();
 end
 
 return orm

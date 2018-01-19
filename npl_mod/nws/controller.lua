@@ -29,6 +29,9 @@ function controller:set_model_name(model_name)
 	--self.model = nws.import('model.' .. model_name)
 	xpcall(function()
 		self.model = nws.import('model/' .. model_name)
+		if type(self.model) ~= "table" then
+			self.model = nil
+		end
 	end, function(e)
 		log(e)
 	end)
@@ -43,6 +46,7 @@ end
 function controller:get(ctx)
 	if not self.model then
 		ctx.response:send("无效model", 500)
+		return
 	end
 
 	local url_params = ctx.request.url_params or {}
@@ -62,6 +66,7 @@ end
 function controller:put(ctx)
 	if not self.model then
 		ctx.response:send("无效model", 500)
+		return
 	end
 	
 	local url_params = ctx.request.url_params or {}
@@ -70,6 +75,7 @@ function controller:put(ctx)
 
 	if not id then
 		ctx.response:send("缺少资源id", 400)
+		return
 	end
 
 	local err, data = self.model:update({id=id}, params)
@@ -87,6 +93,7 @@ end
 function controller:post(ctx)
 	if not self.model then
 		ctx.response:send("无效model", 500)
+		return
 	end
 
 	local params = ctx.request:get_params()
@@ -107,6 +114,7 @@ function controller:delete(ctx)
 	nws.log(self.model:get_idname())
 	if not self.model then
 		ctx.response:send("无效model", 500)
+		return
 	end
 
 	local url_params = ctx.request.url_params or {}
@@ -134,6 +142,7 @@ end
 function controller:view(ctx)
 	if not self.model then
 		ctx.response:send("无效model", 500)
+		return
 	end
 	local params = ctx.request:get_params()
 	local fieldlist = self.model:get_field_list()

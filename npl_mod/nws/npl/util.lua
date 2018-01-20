@@ -142,7 +142,7 @@ end
 	--return res
 --end
 
-NPL.load("/usr/local/share/lua/5.1")
+--NPL.load("/usr/local/share/lua/5.1")
 local requests = require("requests")
 function util.get_url(params)
 	local method = params.method or "GET"

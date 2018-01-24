@@ -256,6 +256,7 @@ end
 nws.start = function()
 	nws.server_log("启动NPL Server...")
 	if nws.is_start then
+		nws.server_log("NPL Server already start...")
 		return 
 	end
 	nws.http:start(nws.config)

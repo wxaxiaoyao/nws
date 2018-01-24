@@ -104,6 +104,10 @@ function orm:find_one(t)
 	return self._db:find_one(t)
 end
 
+function orm:raw_find(t)
+	return self._db:raw_find(t)
+end
+
 function orm:find(t) 
 	t = t or {}
 	t.page = t.page or 1

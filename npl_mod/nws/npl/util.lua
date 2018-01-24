@@ -97,7 +97,7 @@ end
 
 function util.encode_jwt(payload, secret, expire)
 	secret = secret or config.secret or "keepwork"
-	return jwt.encode(payload, secret, nil, expire)
+	return jwt.encode(payload, secret, "HS256", expire)
 end
 
 function util.decode_jwt(token, secret)
@@ -106,22 +106,21 @@ function util.decode_jwt(token, secret)
 end
 
 function util.encode_base64(text)
-	return Encoding.base64(text)
+	return ParaMisc.base64(text)
+	--return Encoding.base64(text)
 end
 
 function util.decode_base64(text)
-	return Encoding.unbase64(text)
+	return ParaMisc.unbase64(text)
+	--return Encoding.unbase64(text)
 end
 
 function util.md5(msg)
 	return ParaMisc.md5(msg)
 end
 
--- url
--- method
--- headers
--- data
---res:{headers:{}, text:string, status_code:number}
+--NPL.load("/usr/local/share/lua/5.1")
+--local requests = require("requests")
 --function util.get_url(params)
 	--local method = params.method or "GET"
 
@@ -133,7 +132,6 @@ end
 
 	--if string.lower(method) == "get" then
 		--params.params = params.data
-		----params.data = nil
 	--end
 	--local res = requests.request(method, params)
 
@@ -142,40 +140,22 @@ end
 	--return res
 --end
 
---NPL.load("/usr/local/share/lua/5.1")
-local requests = require("requests")
-function util.get_url(params)
+function util.get_url(params, callback)
 	local method = params.method or "GET"
 
-	if params.headers then
-		params.headers['Content-Type'] = params.headers['Content-Type'] or "application/json"
+	if string.upper(method) == "GET" then
+		params.qs = params.data
 	else
-		params.headers = {['Content-Type'] = "application/json"}
+		params.form = params.data
+		if params.json == nil then
+			params.json = true
+		end
 	end
 
-	if string.lower(method) == "get" then
-		params.params = params.data
-	end
-	local res = requests.request(method, params)
-
-	res.data = res.json()
-
-	return res
+	local _, data = System.os.GetUrl(params)
+	data.status_code = data.rcode
+	return data
 end
-
---function util.get_url(params, callback)
-	--local method = params.method or "GET"
-
-	--if string.upper(method) == "GET" then
-		--params.qs = params.data
-	--else
-		--params.form = params.data
-	--end
-
-	--local _, data = System.os.GetUrl(params)
-	--data.status_code = data.rcode
-	--return data
---end
 
 -- 获取当前日期
 function util.get_date()

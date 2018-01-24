@@ -248,6 +248,11 @@ function tabledb:count(t)
 	return data or 0
 end
 
+-- 原生接口查询
+function tabledb:raw_find(t)
+	return self.table:find(t)
+end
+
 function tabledb:find(t)
 	local query = self:_get_query_object(t, true)
 

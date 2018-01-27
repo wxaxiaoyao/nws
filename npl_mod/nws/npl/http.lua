@@ -52,8 +52,9 @@ function http:start(config)
 	handler:init_child_threads()
 
 	local filename = nws.get_nws_path_prefix() .. "npl/handler.lua"
-	local port = config.port or 8888
+	local port = config.server_port or 8888
 
+	--nws.log(filename)
 	NPL.AddPublicFile(filename, -10)
 	NPL.StartNetServer("0.0.0.0", tostring(port))
 end

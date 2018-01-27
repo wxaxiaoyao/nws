@@ -46,6 +46,7 @@ end
 
 
 local function activate()
+	--nws.server_log("---------------client request------------")
 	if type(msg) ~= "table" then
 		return
 	end
